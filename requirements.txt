@@ -1,0 +1,5 @@
+tabula-py==2.6.0 # Tabula needs java (sudo apt install default-jre)
+fastparquet
+beautifulsoup4==4.11.1
+requests==2.28.2
+pyarrow==11.0.0
