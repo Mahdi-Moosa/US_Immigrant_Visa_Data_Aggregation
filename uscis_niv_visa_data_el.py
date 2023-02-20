@@ -48,6 +48,11 @@ def parse_uscis_pdf(pdf_link_visa_post: 'bs4.element.Tag') -> pd.DataFrame:
     file_url = base_url + pdf_link_visa_post['href'].lstrip('/')
     
     try:
+        """ This block reads pdfs with:
+            * Tiltes in each page
+            * Fixes mismatch between parsed column numbers and reads only columns that are parsed in next pages.
+            * Assumes 3 columns in the first page.
+        """
         table_list = tabula.read_pdf(file_url, 
                                 pages='all',
                                 multiple_tables=True,
@@ -59,6 +64,10 @@ def parse_uscis_pdf(pdf_link_visa_post: 'bs4.element.Tag') -> pd.DataFrame:
         columns_of_interest = table_list[0].columns # Assumption: We are only interested in the column headers that are present parsed in page 1. If a new column/columns is/are persed in subsequent pages, we will ignore that/them.
         uscis_table = pd.concat([x[columns_of_interest].dropna() for x in table_list])
         if len(uscis_table.columns) > 3:
+            """This block is written to parse NIV Nationality and Visa Class PDF June 2020.
+                * Works on PDF with column header in all pages. 
+                * First page of PDF has >3 columns, with multiple Unnamed columns that have NaN value (how='all') 
+            """
             print('Started reading for file that raises AttributeError. Code block written based on the parsing of NIV Nationality & Visa Class PDf June 2020.')
             table_list = tabula.read_pdf(file_url, 
                             pages='all',
@@ -76,6 +85,7 @@ def parse_uscis_pdf(pdf_link_visa_post: 'bs4.element.Tag') -> pd.DataFrame:
         print(f'USCIS table columns: {uscis_table.columns}')
 
     except (KeyError,IndexError) as e:
+        """This block is written to parse PDFs that have column header only in the first page."""
         print(f'Error was raised for {file_url}. \nError message:')
         print(e)
         print('Trying to parse PDF assuming only first page has column header.')
@@ -92,21 +102,6 @@ def parse_uscis_pdf(pdf_link_visa_post: 'bs4.element.Tag') -> pd.DataFrame:
         for df in table_list:
             df.columns = column_headers
         uscis_table = pd.concat([x[column_headers].dropna() for x in table_list])
-    # except AttributeError as e:
-    #     print('Started reading for file that raises AttributeError. Based on parsining NIV Nationality & Visa Class PDf June 2020.')
-    #     table_list = tabula.read_pdf(file_url, 
-    #                     pages='all',
-    #                     multiple_tables=True,
-    #                     pandas_options={'header':None},
-    #                     lattice=True,
-    #                     stream=True
-    #                 )
-    #     table_list = [df.dropna(axis=1, how='all').dropna(axis=0,how='all') for df in table_list]
-    #     column_headers = table_list[0].values.tolist()[1]
-    #     table_list = [df[2:] for df in table_list]
-    #     for df in table_list:
-    #         df.columns = column_headers
-    #     uscis_table = pd.concat([x[column_headers].dropna() for x in table_list])
         
     if 'Issuance' in uscis_table.columns:
         uscis_table.rename({'Issuance' : 'Issuances'}, axis=1, inplace=True)
