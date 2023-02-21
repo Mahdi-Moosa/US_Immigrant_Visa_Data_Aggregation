@@ -1,5 +1,5 @@
 # Objective
-Compile immigrant visa statistics  from US Department of State (https://travel.state.gov/content/travel/en/legal/visa-law0/visa-statistics/immigrant-visa-statistics/monthly-immigrant-visa-issuances.html).
+Compile immigrant visa [(IV)](https://travel.state.gov/content/travel/en/legal/visa-law0/visa-statistics/immigrant-visa-statistics/monthly-immigrant-visa-issuances.html) and non-immigrant visa [(NIV)](https://travel.state.gov/content/travel/en/legal/visa-law0/visa-statistics/nonimmigrant-visa-statistics/monthly-nonimmigrant-visa-issuances.html) statistics from US Department of State.
 
 # Data Types
 
